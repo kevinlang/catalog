@@ -4,3 +4,6 @@
 [] Add csv macro
 [] Add text macro
 [] Have "frontmatter" optional for markdown macro
+[] Have :build be optional for markdown macro
+[X] Return non-list if not wildcard
+[] Provide opt to flatten when not using builder. "content_only: true" ?

@@ -24,7 +24,8 @@ defmodule Catalog.MixProject do
       {:earmark, "~> 1.4"},
       {:makeup, "~> 1.0"},
       {:ex_doc, "~> 0.21", only: :docs},
-      {:makeup_elixir, ">= 0.0.0"}
+      {:makeup_elixir, ">= 0.0.0"},
+      {:jason, "~> 1.2 ", optional: true}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
