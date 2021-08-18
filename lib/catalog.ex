@@ -18,9 +18,16 @@ defmodule Catalog do
     end
   end
 
-  defmacro markdown(opts) do
-    quote bind_quoted: [opts: opts] do
-      {from, paths} = Catalog.__extract__(__MODULE__, opts)
+  defmacro markdown(as, from, opts) do
+    quote bind_quoted: [as: as, from: from, opts: opts] do
+      {paths, entries} = Catalog.__extract_markdown__(from, opts)
+
+      if [from] == paths do
+        [entry] = entries
+        Module.put_attribute(__MODULE__, as, entry)
+      else
+        Module.put_attribute(__MODULE__, as, entries)
+      end
 
       for path <- paths do
         @external_resource Path.relative_to_cwd(path)
@@ -30,12 +37,12 @@ defmodule Catalog do
     end
   end
 
-  # def __extract_markdown__(as, from, opts) do
-  #   earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-  #   highlighters = Keyword.get(opts, :highlighters, [])
-  #   decoder = &(&1 |> Earmark.as_html!(earmark_opts) |> highlight(highlighters))
-  #   extract(decoder, as, from, opts)
-  # end
+  def __extract_markdown__(from, opts) do
+    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+    highlighters = Keyword.get(opts, :highlighters, [])
+    decoder = &(&1 |> Earmark.as_html!(earmark_opts) |> highlight(highlighters))
+    extract(decoder, from, opts)
+  end
 
   defp highlight(html, []) do
     html
@@ -49,8 +56,6 @@ defmodule Catalog do
     quote bind_quoted: [as: as, from: from, opts: opts] do
       {paths, entries} = Catalog.__extract_json__(from, opts)
 
-      # if the path provided is not a wildcard, store it as a single val
-      # instead of as a list
       if [from] == paths do
         [entry] = entries
         Module.put_attribute(__MODULE__, as, entry)
@@ -97,34 +102,6 @@ defmodule Catalog do
     {paths, entries}
   end
 
-  def __extract__(module, opts) do
-    builder = Keyword.fetch!(opts, :build)
-    from = Keyword.fetch!(opts, :from)
-    as = Keyword.fetch!(opts, :as)
-
-    for highlighter <- Keyword.get(opts, :highlighters, []) do
-      Application.ensure_all_started(highlighter)
-    end
-
-    paths = from |> Path.wildcard() |> Enum.sort()
-
-    entries =
-      for path <- paths do
-        {attrs, body} = parse_contents!(path, File.read!(path))
-
-        body =
-          path
-          |> Path.extname()
-          |> String.downcase()
-          |> convert_body(body, opts)
-
-        builder.build(path, attrs, body)
-      end
-
-    Module.put_attribute(module, as, entries)
-    {from, paths}
-  end
-
   defp parse_contents!(path, contents) do
     case parse_contents(path, contents) do
       {:ok, attrs, body} ->
@@ -161,15 +138,5 @@ defmodule Catalog do
              "expected attributes for #{inspect(path)} to return a map, got: #{inspect(other)}"}
         end
     end
-  end
-
-  defp convert_body(extname, body, opts) when extname in [".md", ".markdown"] do
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-    highlighters = Keyword.get(opts, :highlighters, [])
-    body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
-  end
-
-  defp convert_body(_extname, body, _opts) do
-    body
   end
 end

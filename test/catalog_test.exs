@@ -23,11 +23,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/**/*.md",
-          as: :examples
-        )
+        markdown(:examples, "test/fixtures/**/*.md", build: Builder)
 
         assert [
                  %{filename: "crlf.md"},
@@ -45,11 +41,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/markdown.{md,markdown}",
-          as: :examples
-        )
+        markdown(:examples, "test/fixtures/markdown.{md,markdown}", build: Builder)
 
         Enum.each(@examples, fn example ->
           assert example.attrs == %{hello: "world"}
@@ -62,14 +54,10 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/nosyntax.md",
-          as: :examples
-        )
+        markdown(:example, "test/fixtures/nosyntax.md", build: Builder)
 
-        assert hd(@examples).attrs == %{syntax: "nohighlight"}
-        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+        assert @example.attrs == %{syntax: "nohighlight"}
+        assert @example.body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
       end
     end
 
@@ -77,19 +65,14 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/nosyntax.md",
-          as: :examples,
-          earmark_options: %Earmark.Options{smartypants: false}
-        )
+        markdown(:example, "test/fixtures/nosyntax.md", build: Builder, earmark_options: %Earmark.Options{smartypants: false})
 
-        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+        assert @example.body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
-        assert hd(@examples).body =~
+        assert @example.body =~
                  "And inline code: <code class=\"inline\">IO.puts &quot;syntax&quot;</code>"
 
-        assert hd(@examples).body =~ "&quot;Smartypants quotes without inline code&quot;"
+        assert @example.body =~ "&quot;Smartypants quotes without inline code&quot;"
       end
     end
 
@@ -97,20 +80,15 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/nosyntax.md",
-          as: :examples,
-          earmark_options: %Earmark.Options{smartypants: true}
-        )
+        markdown(:example, "test/fixtures/nosyntax.md", build: Builder, earmark_options: %Earmark.Options{smartypants: true})
 
-        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+        assert @example.body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
         # Earmark changed between 1.4.10 and 1.4.15 ...
         # assert hd(@examples).body =~
         #          "And inline code: <code class=\"inline\">IO.puts “syntax”</code>"
 
-        assert hd(@examples).body =~ "“Smartypants quotes without inline code”"
+        assert @example.body =~ "“Smartypants quotes without inline code”"
       end
     end
 
@@ -118,15 +96,10 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          build: Builder,
-          from: "test/fixtures/syntax.md",
-          as: :highlights,
-          highlighters: [:makeup_elixir]
-        )
+        markdown(:highlight, "test/fixtures/syntax.md", build: Builder, highlighters: [:makeup_elixir])
 
-        assert hd(@highlights).attrs == %{syntax: "highlight"}
-        assert hd(@highlights).body =~ "<pre><code class=\"makeup elixir\">"
+        assert @highlight.attrs == %{syntax: "highlight"}
+        assert @highlight.body =~ "<pre><code class=\"makeup elixir\">"
       end
     end
 
@@ -134,7 +107,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(as: :highlights, from: "test/fixtures/syntax.md", build: Builder)
+        markdown(:highlight, "test/fixtures/syntax.md", build: Builder)
       end
 
       refute Example.__mix_recompile__?()
@@ -144,12 +117,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(
-          as: :highlights,
-          from: "test/tmp/**/*.md",
-          build: Builder,
-          highlighters: [:makeup_elixir]
-        )
+        markdown(:highlights, "test/tmp/**/*.md", build: Builder, highlighters: [:makeup_elixir])
       end
 
       refute Example.__mix_recompile__?()
