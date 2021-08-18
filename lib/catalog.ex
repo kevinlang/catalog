@@ -1,10 +1,9 @@
 defmodule Catalog do
-
   @doc false
   defmacro __using__(_) do
     quote do
       @before_compile unquote(__MODULE__)
-      Module.register_attribute __MODULE__, :catalog_from_with_md5, accumulate: true
+      Module.register_attribute(__MODULE__, :catalog_from_with_md5, accumulate: true)
       import Catalog
     end
   end

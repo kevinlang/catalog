@@ -22,9 +22,11 @@ defmodule CatalogTest do
     defmodule Example do
       use Catalog
 
-      markdown build: Builder,
+      markdown(
+        build: Builder,
         from: "test/fixtures/**/*.md",
         as: :examples
+      )
 
       assert [
                %{filename: "crlf.md"},
@@ -42,7 +44,7 @@ defmodule CatalogTest do
     defmodule Example do
       use Catalog
 
-      markdown as: :highlights, from: "test/fixtures/syntax.md", build: Builder
+      markdown(as: :highlights, from: "test/fixtures/syntax.md", build: Builder)
     end
 
     refute Example.__mix_recompile__?()
@@ -52,7 +54,12 @@ defmodule CatalogTest do
     defmodule Example do
       use Catalog
 
-      markdown as: :highlights, from: "test/tmp/**/*.md", build: Builder, highlighters: [:makeup_elixir]
+      markdown(
+        as: :highlights,
+        from: "test/tmp/**/*.md",
+        build: Builder,
+        highlighters: [:makeup_elixir]
+      )
     end
 
     refute Example.__mix_recompile__?()
