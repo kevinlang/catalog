@@ -181,5 +181,16 @@ defmodule CatalogTest do
                  |> Enum.sort_by(& &1.filename)
       end
     end
+
+    test "decodes json" do
+      defmodule Example do
+        use Catalog
+
+        json(:example, "test/fixtures/json.json")
+
+        assert @example.attrs == %{a: "four"}
+        assert @example.body == %{"b" => 5}
+      end
+    end
   end
 end
