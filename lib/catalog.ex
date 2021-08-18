@@ -73,7 +73,7 @@ defmodule Catalog do
 
   def __extract_json__(from, opts) do
     jason_options = Keyword.get(opts, :jason_options, [])
-    parser = &(Jason.decode(&1, jason_options))
+    parser = &Jason.decode(&1, jason_options)
     extract(parser, from, opts)
   end
 

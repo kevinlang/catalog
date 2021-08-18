@@ -65,7 +65,10 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(:example, "test/fixtures/nosyntax.md", build: Builder, earmark_options: %Earmark.Options{smartypants: false})
+        markdown(:example, "test/fixtures/nosyntax.md",
+          build: Builder,
+          earmark_options: %Earmark.Options{smartypants: false}
+        )
 
         assert @example.body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
@@ -80,7 +83,10 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(:example, "test/fixtures/nosyntax.md", build: Builder, earmark_options: %Earmark.Options{smartypants: true})
+        markdown(:example, "test/fixtures/nosyntax.md",
+          build: Builder,
+          earmark_options: %Earmark.Options{smartypants: true}
+        )
 
         assert @example.body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
@@ -96,7 +102,10 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        markdown(:highlight, "test/fixtures/syntax.md", build: Builder, highlighters: [:makeup_elixir])
+        markdown(:highlight, "test/fixtures/syntax.md",
+          build: Builder,
+          highlighters: [:makeup_elixir]
+        )
 
         assert @highlight.attrs == %{syntax: "highlight"}
         assert @highlight.body =~ "<pre><code class=\"makeup elixir\">"
@@ -134,7 +143,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        json :examples, "test/fixtures/**/*.json", build: Builder
+        json(:examples, "test/fixtures/**/*.json", build: Builder)
 
         assert [
                  %{filename: "json.json"}
