@@ -171,7 +171,7 @@ defmodule CatalogTest do
       defmodule Example do
         use Catalog
 
-        json(:examples, "test/fixtures/**/*.json", build: Builder)
+        json(:examples, "test/fixtures/**/{json}.json", build: Builder)
 
         assert [
                  %{filename: "json.json"}
@@ -182,13 +182,24 @@ defmodule CatalogTest do
       end
     end
 
-    test "decodes json" do
+    test "decodes json w/ frontmatter" do
       defmodule Example do
         use Catalog
 
         json(:example, "test/fixtures/json.json")
 
         assert @example.attrs == %{a: "four"}
+        assert @example.body == %{"b" => 5}
+      end
+    end
+
+    test "decodes json w/out frontmatter" do
+      defmodule Example do
+        use Catalog
+
+        json(:example, "test/fixtures/no_frontmatter.json")
+
+        assert @example.attrs == %{}
         assert @example.body == %{"b" => 5}
       end
     end
