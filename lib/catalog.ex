@@ -18,7 +18,7 @@ defmodule Catalog do
     end
   end
 
-  defmacro markdown(as, from, opts) do
+  defmacro markdown(as, from, opts \\ []) do
     quote bind_quoted: [as: as, from: from, opts: opts] do
       {paths, entries} = Catalog.__extract_markdown__(from, opts)
 
@@ -84,7 +84,7 @@ defmodule Catalog do
 
     entries =
       for path <- paths do
-        {attrs, body} = parse_contents!(path, File.read!(path))
+        {attrs, body} = parse_contents!(File.read!(path), path)
 
         body = decoder.(body)
 
@@ -102,41 +102,55 @@ defmodule Catalog do
     {paths, entries}
   end
 
-  defp parse_contents!(path, contents) do
-    case parse_contents(path, contents) do
-      {:ok, attrs, body} ->
+  defp parse_contents!("===" <> rest, path) do
+    [code, body] = String.split(rest, "===", parts: 2)
+
+    case Code.eval_string(code, []) do
+      {%{} = attrs, _} ->
         {attrs, body}
 
-      {:error, message} ->
+      {other, _} ->
         raise """
-        #{message}
+        Failed to process Elixir frontmatter in #{inspect(path)}
 
-        Each entry must have a map with attributes, followed by --- and a body. For example:
-
-            %{
-              title: "Hello World"
-            }
-            ---
-            Hello world!
-
+        Expected evaluated frontmatter to return a map, got: #{inspect(other)}
         """
     end
   end
 
-  defp parse_contents(path, contents) do
-    case :binary.split(contents, ["\n---\n", "\r\n---\r\n"]) do
-      [_] ->
-        {:error, "could not find separator --- in #{inspect(path)}"}
+  defp parse_contents!("---" <> rest, path) do
+    [yaml, body] = String.split(rest, "---", parts: 2)
 
-      [code, body] ->
-        case Code.eval_string(code, []) do
-          {%{} = attrs, _} ->
-            {:ok, attrs, body}
+    case YamlElixir.read_from_string(yaml, atoms: true) do
+      {:ok, attrs} ->
+        {attrs, body}
 
-          {other, _} ->
-            {:error,
-             "expected attributes for #{inspect(path)} to return a map, got: #{inspect(other)}"}
-        end
+      {:error, msg} ->
+        raise """
+        Failed to process YAML frontmatter in #{inspect(path)}
+
+        #{msg}
+        """
     end
+  end
+
+  defp parse_contents!("+++" <> rest, path) do
+    [toml, body] = String.split(rest, "+++", parts: 2)
+
+    case Toml.decode(toml, keys: :atoms) do
+      {:ok, attrs} ->
+        {attrs, body}
+
+      {:error, msg} ->
+        raise """
+        Failed to process TOML frontmatter in #{inspect(path)}
+
+        #{msg}
+        """
+    end
+  end
+
+  defp parse_contents!(content, _path) do
+    {%{}, content}
   end
 end

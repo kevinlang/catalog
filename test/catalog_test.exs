@@ -18,6 +18,32 @@ defmodule CatalogTest do
     :ok
   end
 
+  describe "toml frontmatter" do
+    test "is decoded" do
+      defmodule Example do
+        use Catalog
+
+        markdown(:example, "test/fixtures/toml.md")
+
+        assert @example.attrs == %{hello: "world"}
+        assert @example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+      end
+    end
+  end
+
+  describe "yaml frontmatter" do
+    test "is decoded" do
+      defmodule Example do
+        use Catalog
+
+        markdown(:example, "test/fixtures/yaml.md")
+
+        assert @example.attrs == %{hello: "world"}
+        assert @example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+      end
+    end
+  end
+
   describe "markdown" do
     test "builds all matching entries" do
       defmodule Example do
@@ -29,7 +55,9 @@ defmodule CatalogTest do
                  %{filename: "crlf.md"},
                  %{filename: "markdown.md"},
                  %{filename: "nosyntax.md"},
-                 %{filename: "syntax.md"}
+                 %{filename: "syntax.md"},
+                 %{filename: "toml.md"},
+                 %{filename: "yaml.md"}
                ] =
                  @examples
                  |> update_in([Access.all(), :filename], &Path.basename/1)
