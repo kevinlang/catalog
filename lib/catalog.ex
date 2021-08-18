@@ -15,9 +15,6 @@ defmodule Catalog do
           from |> Path.wildcard() |> Enum.sort() |> :erlang.md5() != md5
         end)
       end
-
-      # TODO: Remove me once we require Elixir v1.11+.
-      def __phoenix_recompile__?, do: __mix_recompile__?()
     end
   end
 
