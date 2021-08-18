@@ -1,0 +1,6 @@
+[] Add json macro
+[] Add yaml macro
+[] Add toml macro
+[] Add csv macro
+[] Add text macro
+[] Have "frontmatter" optional for markdown macro
