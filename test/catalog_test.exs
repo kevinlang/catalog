@@ -41,6 +41,95 @@ defmodule CatalogTest do
       end
     end
 
+    test "converts to markdown" do
+      defmodule Example do
+        use Catalog
+
+        markdown(
+          build: Builder,
+          from: "test/fixtures/markdown.{md,markdown}",
+          as: :examples
+        )
+
+        Enum.each(@examples, fn example ->
+          assert example.attrs == %{hello: "world"}
+          assert example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+        end)
+      end
+    end
+
+    test "handles code blocks" do
+      defmodule Example do
+        use Catalog
+
+        markdown(
+          build: Builder,
+          from: "test/fixtures/nosyntax.md",
+          as: :examples
+        )
+
+        assert hd(@examples).attrs == %{syntax: "nohighlight"}
+        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+      end
+    end
+
+    test "passes earmark options to earmark - smartypants off" do
+      defmodule Example do
+        use Catalog
+
+        markdown(
+          build: Builder,
+          from: "test/fixtures/nosyntax.md",
+          as: :examples,
+          earmark_options: %Earmark.Options{smartypants: false}
+        )
+
+        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+
+        assert hd(@examples).body =~
+                 "And inline code: <code class=\"inline\">IO.puts &quot;syntax&quot;</code>"
+
+        assert hd(@examples).body =~ "&quot;Smartypants quotes without inline code&quot;"
+      end
+    end
+
+    test "passes earmark options to earmark - smartypants on" do
+      defmodule Example do
+        use Catalog
+
+        markdown(
+          build: Builder,
+          from: "test/fixtures/nosyntax.md",
+          as: :examples,
+          earmark_options: %Earmark.Options{smartypants: true}
+        )
+
+        assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+
+        # Earmark changed between 1.4.10 and 1.4.15 ...
+        # assert hd(@examples).body =~
+        #          "And inline code: <code class=\"inline\">IO.puts “syntax”</code>"
+
+        assert hd(@examples).body =~ "“Smartypants quotes without inline code”"
+      end
+    end
+
+    test "handles highlight blocks" do
+      defmodule Example do
+        use Catalog
+
+        markdown(
+          build: Builder,
+          from: "test/fixtures/syntax.md",
+          as: :highlights,
+          highlighters: [:makeup_elixir]
+        )
+
+        assert hd(@highlights).attrs == %{syntax: "highlight"}
+        assert hd(@highlights).body =~ "<pre><code class=\"makeup elixir\">"
+      end
+    end
+
     test "does not require recompilation unless paths changed" do
       defmodule Example do
         use Catalog
