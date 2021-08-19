@@ -1,9 +1,10 @@
-[] Add json macro
+[X] Add json macro
 [] Add yaml macro
 [] Add toml macro
 [] Add csv macro
-[] Add file macro
-[] Have "frontmatter" optional for markdown macro
-[] Have :build be optional for markdown macro
+[X] Add file macro
+[X] Have "frontmatter" optional for markdown macro
+[X] Have :build be optional for markdown macro
 [X] Return non-list if not wildcard
 [] Provide opt to flatten when not using builder. "content_only: true" ?
+[X] Combine code in macros - only thing that changes is the extraction function

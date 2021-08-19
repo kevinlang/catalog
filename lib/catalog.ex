@@ -18,9 +18,18 @@ defmodule Catalog do
     end
   end
 
-  defmacro markdown(as, from, opts \\ []) do
-    quote bind_quoted: [as: as, from: from, opts: opts] do
-      {paths, entries} = Catalog.__extract_markdown__(from, opts)
+  defmacro markdown(as, from, opts \\ []),
+    do: macro(&Catalog.__extract_markdown__/2, as, from, opts)
+
+  defmacro json(as, from, opts \\ []),
+    do: macro(&Catalog.__extract_json__/2, as, from, opts)
+
+  defmacro file(as, from, opts \\ []),
+    do: macro(&Catalog.__extract_file__/2, as, from, opts)
+
+  defp macro(fun, as, from, opts) do
+    quote bind_quoted: [fun: fun, as: as, from: from, opts: opts] do
+      {paths, entries} = fun.(from, opts)
 
       if [from] == paths do
         [entry] = entries
@@ -52,48 +61,10 @@ defmodule Catalog do
     Catalog.Highlighter.highlight(html)
   end
 
-  defmacro json(as, from, opts \\ []) do
-    quote bind_quoted: [as: as, from: from, opts: opts] do
-      {paths, entries} = Catalog.__extract_json__(from, opts)
-
-      if [from] == paths do
-        [entry] = entries
-        Module.put_attribute(__MODULE__, as, entry)
-      else
-        Module.put_attribute(__MODULE__, as, entries)
-      end
-
-      for path <- paths do
-        @external_resource Path.relative_to_cwd(path)
-      end
-
-      @catalog_from_with_md5 {from, :erlang.md5(paths)}
-    end
-  end
-
   def __extract_json__(from, opts) do
     jason_options = Keyword.get(opts, :jason_options, [])
     parser = &Jason.decode!(&1, jason_options)
     extract(parser, from, opts)
-  end
-
-  defmacro file(as, from, opts \\ []) do
-    quote bind_quoted: [as: as, from: from, opts: opts] do
-      {paths, entries} = Catalog.__extract_file__(from, opts)
-
-      if [from] == paths do
-        [entry] = entries
-        Module.put_attribute(__MODULE__, as, entry)
-      else
-        Module.put_attribute(__MODULE__, as, entries)
-      end
-
-      for path <- paths do
-        @external_resource Path.relative_to_cwd(path)
-      end
-
-      @catalog_from_with_md5 {from, :erlang.md5(paths)}
-    end
   end
 
   def __extract_file__(from, opts) do
