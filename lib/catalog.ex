@@ -1,4 +1,10 @@
 defmodule Catalog do
+  @external_resource "README.md"
+  @moduledoc "README.md"
+             |> File.read!()
+             |> String.split("<!-- MDOC !-->")
+             |> Enum.fetch!(1)
+
   @doc false
   defmacro __using__(_) do
     quote do
@@ -18,9 +24,46 @@ defmodule Catalog do
     end
   end
 
+  @doc """
+  Processes all markdown files in `from` and stores them in the
+  module attribute `as`.
+
+  ## Example
+
+      markdown(:posts, "posts/**.md")
+
+      markdown(:articles, "articles/**.md", build: Article)
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry
+
+    * `:highlighters` - which code highlighters to use. `Catalog`
+      uses `Makeup` for syntax highlighting and you will need to add its
+      `.css` classes. You can generate the CSS classes by calling
+      `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
+      You can replace `:vim_style` by any style of your choice
+      [defined here](https://hexdocs.pm/makeup/Makeup.Styles.HTML.StyleMap.html).
+
+    * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct.
+  """
   defmacro markdown(as, from, opts \\ []),
     do: macro(&Catalog.__extract_markdown__/2, as, from, opts)
 
+  @doc """
+  Processes all json files in `from` and stores them in the
+  module attribute `as`.
+
+  ## Example
+
+      json(:countries, "countries/**.json")
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry.
+
+    *
+  """
   defmacro json(as, from, opts \\ []),
     do: macro(&Catalog.__extract_json__/2, as, from, opts)
 
