@@ -12,14 +12,14 @@ as pleasant as a developer experience as possible, taking inspiration from
 the seamless integration static site generators provide for editing in-repo 
 data and content files.
 
-It supports the following datatypes:
+It supports the following content types:
 
-* `markdown/2`
-* `json/2`
-* `csv/2`
-* `text/2`
-* `yaml/2`
-* `toml/2`
+* `markdown/3`
+* `json/3`
+* `csv/3`
+* `file/3`
+* `yaml/3`
+* `toml/3`
 
 ## Comparison to other approaches
 
