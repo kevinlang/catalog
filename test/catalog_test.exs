@@ -252,4 +252,16 @@ defmodule CatalogTest do
       end
     end
   end
+
+  describe "csv" do
+    test "decodes file" do
+      defmodule Example do
+        use Catalog
+
+        csv(:example, "test/fixtures/csv.csv")
+
+        assert @example.body == [%{"name" => "john", "age" => "27"}, %{"name" => "steve", "age" => "20"}]
+      end
+    end
+  end
 end

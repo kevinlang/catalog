@@ -33,6 +33,9 @@ defmodule Catalog do
   defmacro toml(as, from, opts \\ []),
     do: macro(&Catalog.__extract_toml__/2, as, from, opts)
 
+  defmacro csv(as, from, opts \\ []),
+    do: macro(&Catalog.__extract_csv__/2, as, from, opts)
+
   defp macro(fun, as, from, opts) do
     quote bind_quoted: [fun: fun, as: as, from: from, opts: opts] do
       {paths, entries} = fun.(from, opts)
@@ -84,6 +87,11 @@ defmodule Catalog do
 
   def __extract_toml__(from, opts) do
     parser = &Toml.decode!(&1, atoms: true)
+    extract(parser, from, opts)
+  end
+
+  def __extract_csv__(from, opts) do
+    parser = &(String.split(&1) |> CSV.decode!(headers: true) |> Enum.to_list())
     extract(parser, from, opts)
   end
 
