@@ -30,6 +30,9 @@ defmodule Catalog do
   defmacro yaml(as, from, opts \\ []),
     do: macro(&Catalog.__extract_yaml__/2, as, from, opts)
 
+  defmacro toml(as, from, opts \\ []),
+    do: macro(&Catalog.__extract_toml__/2, as, from, opts)
+
   defp macro(fun, as, from, opts) do
     quote bind_quoted: [fun: fun, as: as, from: from, opts: opts] do
       {paths, entries} = fun.(from, opts)
@@ -76,6 +79,11 @@ defmodule Catalog do
 
   def __extract_yaml__(from, opts) do
     parser = &YamlElixir.read_from_string!(&1, atoms: true)
+    extract(parser, from, opts)
+  end
+
+  def __extract_toml__(from, opts) do
+    parser = &Toml.decode!(&1, atoms: true)
     extract(parser, from, opts)
   end
 

@@ -240,4 +240,16 @@ defmodule CatalogTest do
       end
     end
   end
+
+  describe "toml" do
+    test "decodes file" do
+      defmodule Example do
+        use Catalog
+
+        toml(:example, "test/fixtures/toml.toml")
+
+        assert @example.body == %{"database" => %{"server" => "192.168.1.1"}}
+      end
+    end
+  end
 end
