@@ -8,3 +8,7 @@
 [X] Return non-list if not wildcard
 [] Provide opt to flatten when not using builder. "content_only: true" ?
 [X] Combine code in macros - only thing that changes is the extraction function
+
+Notes:
+* the data formats should probably not have frontmatter, as it does not make sense
+* nevertheless, we can support it if need be, but document why it is not necessary
