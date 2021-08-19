@@ -1,21 +1,43 @@
 defmodule Catalog.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+  @url "https://github.com/kevinlang/catalog"
+
   def project do
     [
       app: :catalog,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
-      start_permanent: Mix.env() == :prod,
-      deps: deps()
+      name: "Catalog",
+      description:
+        "Compile time content and data processing engine for markdown, json, yaml, and more.",
+      deps: deps(),
+      docs: docs(),
+      package: package()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
+  end
+
+  defp docs do
+    [
+      main: "Catalog",
+      source_ref: "v#{@version}",
+      source_url: @url
+    ]
+  end
+
+  defp package do
+    %{
+      licenses: ["Apache 2"],
+      maintainers: ["Kevin Lang"],
+      links: %{"GitHub" => @url}
+    }
   end
 
   # Run "mix help deps" to learn about dependencies.
