@@ -1,4 +1,6 @@
 defmodule Catalog.FrontMatter do
+  @moduledoc false
+
   def process!("===" <> rest, path) do
     [code, body] = String.split(rest, ["===\n", "===\r\n"], parts: 2)
 
