@@ -2,7 +2,7 @@
 [] Add yaml macro
 [] Add toml macro
 [] Add csv macro
-[] Add text macro
+[] Add file macro
 [] Have "frontmatter" optional for markdown macro
 [] Have :build be optional for markdown macro
 [X] Return non-list if not wildcard

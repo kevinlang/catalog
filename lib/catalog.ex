@@ -77,6 +77,29 @@ defmodule Catalog do
     extract(parser, from, opts)
   end
 
+  defmacro file(as, from, opts \\ []) do
+    quote bind_quoted: [as: as, from: from, opts: opts] do
+      {paths, entries} = Catalog.__extract_file__(from, opts)
+
+      if [from] == paths do
+        [entry] = entries
+        Module.put_attribute(__MODULE__, as, entry)
+      else
+        Module.put_attribute(__MODULE__, as, entries)
+      end
+
+      for path <- paths do
+        @external_resource Path.relative_to_cwd(path)
+      end
+
+      @catalog_from_with_md5 {from, :erlang.md5(paths)}
+    end
+  end
+
+  def __extract_file__(from, opts) do
+    extract(&(&1), from, opts)
+  end
+
   defp extract(decoder, from, opts) do
     builder = Keyword.get(opts, :build)
 
@@ -103,7 +126,7 @@ defmodule Catalog do
   end
 
   defp parse_contents!("===" <> rest, path) do
-    [code, body] = String.split(rest, "===", parts: 2)
+    [code, body] = String.split(rest, ["===\n", "===\r\n"], parts: 2)
 
     case Code.eval_string(code, []) do
       {%{} = attrs, _} ->
@@ -119,7 +142,7 @@ defmodule Catalog do
   end
 
   defp parse_contents!("---" <> rest, path) do
-    [yaml, body] = String.split(rest, "---", parts: 2)
+    [yaml, body] = String.split(rest, ["---\n", "---\r\n"], parts: 2)
 
     case YamlElixir.read_from_string(yaml, atoms: true) do
       {:ok, attrs} ->
@@ -135,7 +158,7 @@ defmodule Catalog do
   end
 
   defp parse_contents!("+++" <> rest, path) do
-    [toml, body] = String.split(rest, "+++", parts: 2)
+    [toml, body] = String.split(rest, ["+++\n", "+++\r\n"], parts: 2)
 
     case Toml.decode(toml, keys: :atoms) do
       {:ok, attrs} ->

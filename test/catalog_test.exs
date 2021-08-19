@@ -204,4 +204,28 @@ defmodule CatalogTest do
       end
     end
   end
+
+  describe "file" do
+    test "decodes file w/ frontmatter" do
+      defmodule Example do
+        use Catalog
+
+        file(:example, "test/fixtures/frontmatter.txt")
+
+        assert @example.attrs == %{hello: "world"}
+        assert @example.body == "I am a text file.\n"
+      end
+    end
+
+    test "decodes file w/out frontmatter" do
+      defmodule Example do
+        use Catalog
+
+        file(:example, "test/fixtures/frontmatter_none.txt")
+
+        assert @example.attrs == %{}
+        assert @example.body == "I am a text file.\n"
+      end
+    end
+  end
 end
