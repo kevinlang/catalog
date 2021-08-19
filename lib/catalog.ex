@@ -102,7 +102,7 @@ defmodule Catalog do
 
     entries =
       for path <- paths do
-        {attrs, body} = parse_contents!(File.read!(path), path)
+        {attrs, body} = Catalog.FrontMatter.process!(File.read!(path), path)
 
         body = decoder.(body)
 
@@ -118,57 +118,5 @@ defmodule Catalog do
       end
 
     {paths, entries}
-  end
-
-  defp parse_contents!("===" <> rest, path) do
-    [code, body] = String.split(rest, ["===\n", "===\r\n"], parts: 2)
-
-    case Code.eval_string(code, []) do
-      {%{} = attrs, _} ->
-        {attrs, body}
-
-      {other, _} ->
-        raise """
-        Failed to process Elixir frontmatter in #{inspect(path)}
-
-        Expected evaluated frontmatter to return a map, got: #{inspect(other)}
-        """
-    end
-  end
-
-  defp parse_contents!("---" <> rest, path) do
-    [yaml, body] = String.split(rest, ["---\n", "---\r\n"], parts: 2)
-
-    case YamlElixir.read_from_string(yaml, atoms: true) do
-      {:ok, attrs} ->
-        {attrs, body}
-
-      {:error, msg} ->
-        raise """
-        Failed to process YAML frontmatter in #{inspect(path)}
-
-        #{msg}
-        """
-    end
-  end
-
-  defp parse_contents!("+++" <> rest, path) do
-    [toml, body] = String.split(rest, ["+++\n", "+++\r\n"], parts: 2)
-
-    case Toml.decode(toml, keys: :atoms) do
-      {:ok, attrs} ->
-        {attrs, body}
-
-      {:error, msg} ->
-        raise """
-        Failed to process TOML frontmatter in #{inspect(path)}
-
-        #{msg}
-        """
-    end
-  end
-
-  defp parse_contents!(content, _path) do
-    {%{}, content}
   end
 end
