@@ -260,7 +260,10 @@ defmodule CatalogTest do
 
         csv(:example, "test/fixtures/csv.csv")
 
-        assert @example.body == [%{"name" => "john", "age" => "27"}, %{"name" => "steve", "age" => "20"}]
+        assert @example.body == [
+                 %{"name" => "john", "age" => "27"},
+                 %{"name" => "steve", "age" => "20"}
+               ]
       end
     end
   end
