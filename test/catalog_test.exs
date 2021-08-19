@@ -228,4 +228,16 @@ defmodule CatalogTest do
       end
     end
   end
+
+  describe "yaml" do
+    test "decodes file" do
+      defmodule Example do
+        use Catalog
+
+        yaml(:example, "test/fixtures/yaml.yaml")
+
+        assert @example.body == %{"a" => "a", "b" => 1, "c" => true, "d" => nil, "e" => "nil"}
+      end
+    end
+  end
 end
