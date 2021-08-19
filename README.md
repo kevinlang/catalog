@@ -45,7 +45,7 @@ end
 In the example above, we defined a new module for our Elixir application, `MyApp.Catalog`,
 that will serve as the API for our processed assets. We then use the `markdown/2` macro,
 specifying first the name of the module attribute, `:posts`, we want to stored the processed markdown file,
-then specifying the wildcard path for where those files are stored, `"posts/**.md".
+then specifying the wildcard path for where those files are stored, `"posts/**.md"`.
 
 If our specified directory has only the following markdown file at `posts/hello.md`:
 
