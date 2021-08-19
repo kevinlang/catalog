@@ -68,7 +68,7 @@ defmodule Catalog do
   end
 
   def __extract_file__(from, opts) do
-    extract(&(&1), from, opts)
+    extract(& &1, from, opts)
   end
 
   defp extract(decoder, from, opts) do
