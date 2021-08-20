@@ -154,8 +154,8 @@ hello = "toml"
 This markdown *document* has TOML frontmatter!
 ```
 
-TOML frontmatter is processed by the `Toml` libary. You can customize the TOML processing by providing
-the `:toml_options` in your macro call.
+TOML frontmatter is processed by the `Toml` libary. You can customize the TOML processing by providing 
+`:toml_options` in your macro call, which will be passed along to `Toml.decode!/1`. 
 
 ### Elixir frontmatter
 
@@ -183,9 +183,11 @@ hello: yaml
 This markdown *document* has YAML frontmatter!
 ```
 
-YAML frontmatter parsing is handled by `YAMLElixir`. Unfortunately, this library does not allow us to have the keys
-returned as atoms instead of strings, making it more awkward than the other frontmatter types. Because of this,
-we do not recommend using YAML frontmatter.
+YAML frontmatter parsing is handled by `YamlElixir`. You can customize the YAML processing by providing
+`:yaml_options` in your macro call, which will be passed along to `YamlElixir.read_from_string!/2`.
+
+Unfortunately, this library does not allow us to have the keys returned as atoms instead of strings, which
+makes it slightly more cumbersome to use. Because of this, we do not recommend using YAML frontmatter.
 
 ## Live reloading
 

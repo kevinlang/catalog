@@ -30,9 +30,13 @@ defmodule Catalog do
 
   ## Example
 
-      markdown(:posts, "posts/**.md")
+      defmodule MyApp.Catalog do
+        use Catalog
 
-      markdown(:articles, "articles/**.md", build: Article)
+        markdown(:posts, "posts/**.md", build: Article)
+
+        def all_posts(), do: @posts
+      end
 
   ## Options
 
@@ -52,30 +56,169 @@ defmodule Catalog do
 
   @doc """
   Processes all json files in `from` and stores them in the
-  module attribute `as`.
+  module attribute `as`. This uses `Jason` for processing the
+  content of the file.
 
   ## Example
 
-      json(:countries, "countries/**.json")
+      defmodule MyApp.Catalog do
+        use Catalog
+
+        json(:countries, "countries/**.json")
+
+        def all_countries(), do: @countries
+      end
 
   ## Options
 
     * `:build` - the name of the module that will build each entry.
 
-    *
+    * `:jason_options` - options that will be passed along to the
+      `Jason.decode!/2` call. TODO
+
   """
   defmacro json(as, from, opts \\ []),
     do: macro(&Catalog.__extract_json__/2, as, from, opts)
 
+  @doc """
+  Processes all files in `from` and stores them in the
+  module attribute `as`. This processor merely reads the file contents
+  into a string. It is commonly used for text or HTML files.
+
+  ## Example
+
+      defmodule MyApp.Catalog do
+        use Catalog
+
+        file(:notes, "notes/**.txt")
+
+        def all_notes(), do: @notes
+      end
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry.
+
+  """
   defmacro file(as, from, opts \\ []),
     do: macro(&Catalog.__extract_file__/2, as, from, opts)
 
+  @doc """
+  Processes all YAML files in `from` and stores them in the
+  module attribute `as`. Uses `YamlElixir` for processing the
+  content of the file.
+
+  ## Example
+
+      defmodule MyApp.Catalog do
+        use Catalog
+
+        yaml(:cities, "cities/**.yaml")
+
+        def all_cities(), do: @cities
+      end
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry.
+
+    * `:yaml_options` - options that will be passed along to the
+      `YamlElixir.read_from_string!/2` call. TODO
+
+  """
   defmacro yaml(as, from, opts \\ []),
     do: macro(&Catalog.__extract_yaml__/2, as, from, opts)
 
+  @doc """
+  Processes all TOML files in `from` and stores them in the
+  module attribute `as`. Uses `Toml` for processing the
+  content of the file.
+
+  ## Example
+
+  If we have a `authors.toml` file with the following contents:
+
+      ["Graham Greene"]
+      best_work = "The Quiet American"
+
+      ["Fernando Pessoa"]
+      best_work = "Book of Disquiet
+
+  We can include it in our module like so:
+
+      defmodule MyApp.Catalog do
+        use Catalog
+
+        toml(:authors, "authors.toml")
+
+        def all_authors(), do: @authors
+      end
+
+  The value of `@authors` will be:
+
+      %{
+        frontmatter: %{},
+        path: "authors.toml",
+        content: %{
+          "Graham Greene" => %{"best_work" => "The Quiet American"},
+          "Fernando Pessoa" => %{"best_work" => "Book of Disquiet}
+        }
+      }
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry.
+
+    * `:toml_options` - options that will be passed along to the
+      `Toml.decode!/2` call.
+
+  """
   defmacro toml(as, from, opts \\ []),
     do: macro(&Catalog.__extract_toml__/2, as, from, opts)
 
+  @doc """
+  Processes all CSV files in `from` and stores them in the
+  module attribute `as`. Uses `CSV` for processing the
+  content of the file.
+
+  ## Example
+
+  If we have a `people.csv` file with the following contents:
+
+      name,age
+      john,27
+      steve,20
+
+  We can include it in our module like so:
+
+      defmodule MyApp.Catalog do
+        use Catalog
+
+        csv(:people, "people.csv")
+
+        def all_people(), do: @people
+      end
+
+  The resulting value of `@movies` will be:
+
+      %{
+        frontmatter: %{},
+        path: "people.csv",
+        content: [
+          %{"name" => "john", "age" => "27"},
+          %{"name" => "steve", "age" => "20"}
+        ]
+      }
+
+  ## Options
+
+    * `:build` - the name of the module that will build each entry.
+
+    * `:csv_options` - options that will be passed along to the
+      `CSV.decode!/2` call. By default we pass along `headers: true`
+      to the call.
+
+  """
   defmacro csv(as, from, opts \\ []),
     do: macro(&Catalog.__extract_csv__/2, as, from, opts)
 
@@ -129,7 +272,8 @@ defmodule Catalog do
   end
 
   def __extract_toml__(from, opts) do
-    parser = &Toml.decode!(&1, atoms: true)
+    toml_options = Keyword.merge([atoms: true], Keyword.get(opts, :toml_options, []))
+    parser = &Toml.decode!(&1, toml_options)
     extract(parser, from, opts)
   end
 
