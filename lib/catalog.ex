@@ -74,7 +74,7 @@ defmodule Catalog do
     * `:build` - the name of the module that will build each entry.
 
     * `:jason_options` - options that will be passed along to the
-      `Jason.decode!/2` call. TODO
+      `Jason.decode!/2` call.
 
   """
   defmacro json(as, from, opts \\ []),
@@ -123,7 +123,7 @@ defmodule Catalog do
     * `:build` - the name of the module that will build each entry.
 
     * `:yaml_options` - options that will be passed along to the
-      `YamlElixir.read_from_string!/2` call. TODO
+      `YamlElixir.read_from_string!/2` call.
 
   """
   defmacro yaml(as, from, opts \\ []),
@@ -267,18 +267,20 @@ defmodule Catalog do
   end
 
   def __extract_yaml__(from, opts) do
-    parser = &YamlElixir.read_from_string!(&1, atoms: true)
+    yaml_options = Keyword.get(opts, :yaml_options, [])
+    parser = &YamlElixir.read_from_string!(&1, yaml_options)
     extract(parser, from, opts)
   end
 
   def __extract_toml__(from, opts) do
-    toml_options = Keyword.merge([atoms: true], Keyword.get(opts, :toml_options, []))
+    toml_options = Keyword.get(opts, :toml_options, [])
     parser = &Toml.decode!(&1, toml_options)
     extract(parser, from, opts)
   end
 
   def __extract_csv__(from, opts) do
-    parser = &(String.split(&1) |> CSV.decode!(headers: true) |> Enum.to_list())
+    csv_options = Keyword.merge([headers: true], Keyword.get(opts, :csv_otpions, []))
+    parser = &(String.split(&1) |> CSV.decode!(csv_options) |> Enum.to_list())
     extract(parser, from, opts)
   end
 
