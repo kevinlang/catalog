@@ -1,7 +1,7 @@
 defmodule Catalog.FrontMatter do
   @moduledoc false
 
-  def process!("===" <> rest, path) do
+  def process!("===" <> rest, path, _opts) do
     [code, body] = String.split(rest, ["===\n", "===\r\n"], parts: 2)
 
     case Code.eval_string(code, []) do
@@ -17,10 +17,11 @@ defmodule Catalog.FrontMatter do
     end
   end
 
-  def process!("---" <> rest, path) do
+  def process!("---" <> rest, path, opts) do
+    yaml_options = Keyword.merge([atoms: true], Keyword.get(opts, :yaml_options, []))
     [yaml, body] = String.split(rest, ["---\n", "---\r\n"], parts: 2)
 
-    case YamlElixir.read_from_string(yaml, atoms: true) do
+    case YamlElixir.read_from_string(yaml, yaml_options) do
       {:ok, attrs} ->
         {attrs, body}
 
@@ -33,10 +34,11 @@ defmodule Catalog.FrontMatter do
     end
   end
 
-  def process!("+++" <> rest, path) do
+  def process!("+++" <> rest, path, opts) do
+    toml_options = Keyword.merge([keys: :atoms], Keyword.get(opts, :toml_options, []))
     [toml, body] = String.split(rest, ["+++\n", "+++\r\n"], parts: 2)
 
-    case Toml.decode(toml, keys: :atoms) do
+    case Toml.decode(toml, toml_options) do
       {:ok, attrs} ->
         {attrs, body}
 
@@ -49,7 +51,7 @@ defmodule Catalog.FrontMatter do
     end
   end
 
-  def process!(content, _path) do
+  def process!(content, _path, _opts) do
     {%{}, content}
   end
 end

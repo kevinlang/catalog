@@ -289,7 +289,7 @@ defmodule Catalog do
 
     entries =
       for path <- paths do
-        {frontmatter, content} = Catalog.FrontMatter.process!(File.read!(path), path)
+        {frontmatter, content} = Catalog.FrontMatter.process!(File.read!(path), path, opts)
 
         content = decoder.(content)
 
