@@ -76,12 +76,12 @@ We can customize how we build each entry by specifying our own `:build` option.
 
 ```elixir 
 defmodule MyApp.Catalog.Post
-  @enforce_keys [:id, :author, :title, :date, :body]
-  defstruct [:id, :author, :title, :date, :body]
+  @enforce_keys [:id, :author, :title, :date, :content]
+  defstruct [:id, :author, :title, :date, :content]
 
-  def build(path, frontmatter, body) do
+  def build(path, frontmatter, content) do
     [id] = path |> Path.rootname() |> Path.split() |> Enum.take(-1)
-    struct!(__MODULE__, [id: id, body: body] ++ Map.to_list(frontmatter))
+    struct!(__MODULE__, [id: id, content: content] ++ Map.to_list(frontmatter))
   end
 end
 ```
@@ -91,7 +91,7 @@ Then our `@posts` attribute will look like:
 ```elixir
 [%MyApp.Catalog.Post{
   id: "hello",
-  body: "<p>\nThis is a markdown <em>document</em>.</p>\n",
+  content: "<p>\nThis is a markdown <em>document</em>.</p>\n",
   date: ~D[2021-08-19],
   title: "Hello World",
   author: "Kevin Lang"
