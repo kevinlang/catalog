@@ -289,17 +289,17 @@ defmodule Catalog do
 
     entries =
       for path <- paths do
-        {attrs, body} = Catalog.FrontMatter.process!(File.read!(path), path)
+        {frontmatter, content} = Catalog.FrontMatter.process!(File.read!(path), path)
 
-        body = decoder.(body)
+        content = decoder.(content)
 
         if builder do
-          builder.build(path, attrs, body)
+          builder.build(path, frontmatter, content)
         else
           %{
             path: path,
-            attrs: attrs,
-            body: body
+            frontmatter: frontmatter,
+            content: content
           }
         end
       end

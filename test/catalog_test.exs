@@ -25,8 +25,8 @@ defmodule CatalogTest do
 
         markdown(:example, "test/fixtures/toml.md")
 
-        assert @example.attrs == %{hello: "world"}
-        assert @example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+        assert @example.frontmatter == %{hello: "world"}
+        assert @example.content == "<p>\nThis is a markdown <em>document</em>.</p>\n"
       end
     end
   end
@@ -38,8 +38,8 @@ defmodule CatalogTest do
 
         markdown(:example, "test/fixtures/yaml.md")
 
-        assert @example.attrs == %{hello: "world"}
-        assert @example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+        assert @example.frontmatter == %{hello: "world"}
+        assert @example.content == "<p>\nThis is a markdown <em>document</em>.</p>\n"
       end
     end
   end
@@ -188,8 +188,8 @@ defmodule CatalogTest do
 
         json(:example, "test/fixtures/json.json")
 
-        assert @example.attrs == %{a: "four"}
-        assert @example.body == %{"b" => 5}
+        assert @example.frontmatter == %{a: "four"}
+        assert @example.content == %{"b" => 5}
       end
     end
 
@@ -199,8 +199,8 @@ defmodule CatalogTest do
 
         json(:example, "test/fixtures/no_frontmatter.json")
 
-        assert @example.attrs == %{}
-        assert @example.body == %{"b" => 5}
+        assert @example.frontmatter == %{}
+        assert @example.content == %{"b" => 5}
       end
     end
   end
@@ -212,8 +212,8 @@ defmodule CatalogTest do
 
         file(:example, "test/fixtures/frontmatter.txt")
 
-        assert @example.attrs == %{hello: "world"}
-        assert @example.body == "I am a text file.\n"
+        assert @example.frontmatter == %{hello: "world"}
+        assert @example.content == "I am a text file.\n"
       end
     end
 
@@ -223,8 +223,8 @@ defmodule CatalogTest do
 
         file(:example, "test/fixtures/frontmatter_none.txt")
 
-        assert @example.attrs == %{}
-        assert @example.body == "I am a text file.\n"
+        assert @example.frontmatter == %{}
+        assert @example.content == "I am a text file.\n"
       end
     end
   end
@@ -236,7 +236,7 @@ defmodule CatalogTest do
 
         yaml(:example, "test/fixtures/yaml.yaml")
 
-        assert @example.body == %{"a" => "a", "b" => 1, "c" => true, "d" => nil, "e" => "nil"}
+        assert @example.content == %{"a" => "a", "b" => 1, "c" => true, "d" => nil, "e" => "nil"}
       end
     end
   end
@@ -248,7 +248,7 @@ defmodule CatalogTest do
 
         toml(:example, "test/fixtures/toml.toml")
 
-        assert @example.body == %{"database" => %{"server" => "192.168.1.1"}}
+        assert @example.content == %{"database" => %{"server" => "192.168.1.1"}}
       end
     end
   end
@@ -260,7 +260,10 @@ defmodule CatalogTest do
 
         csv(:example, "test/fixtures/csv.csv")
 
-        assert @example.body == [
+        assert @example.frontmatter == %{}
+        assert @example.path == "test/fixtures/csv.csv"
+
+        assert @example.content == [
                  %{"name" => "john", "age" => "27"},
                  %{"name" => "steve", "age" => "20"}
                ]
