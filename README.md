@@ -162,7 +162,7 @@ files, but are supported for all of our macros.
 
 ### TOML frontmatter
 
-TOML frontmatter can be used by specifying a TOML block fenced in by the `+++` seperator:
+TOML frontmatter can be used by specifying a TOML block fenced in by the `+++` seperator.
 
 ```markdown
 +++
@@ -171,7 +171,14 @@ hello = "toml"
 This markdown *document* has TOML frontmatter!
 ```
 
-TOML frontmatter is processed by the `Toml` libary. You can customize the TOML processing by providing 
+TOML frontmatter is processed by the `Toml` libary.
+To use TOML frontmatter, `Toml` must be added as a dependency:
+
+```
+{:toml, "~> 0.6.2"}
+```
+
+You can customize the TOML processing by providing 
 `:toml_options` in your macro call, which will be passed along to `Toml.decode!/1`. 
 
 ### Elixir frontmatter
@@ -200,7 +207,14 @@ hello: yaml
 This markdown *document* has YAML frontmatter!
 ```
 
-YAML frontmatter parsing is handled by `YamlElixir`. You can customize the YAML processing by providing
+YAML frontmatter is processed by the `YamlElixir` libary.
+To use YAML frontmatter, `YamlElixir` must be added as a dependency:
+
+```
+{:yaml_elixir, "~> 2.8"}
+```
+
+You can customize the YAML processing by providing
 `:yaml_options` in your macro call, which will be passed along to `YamlElixir.read_from_string!/2`.
 
 Unfortunately, this library does not allow us to have the keys returned as atoms instead of strings, which
