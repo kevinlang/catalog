@@ -17,38 +17,58 @@ defmodule Catalog.FrontMatter do
     end
   end
 
-  def process!("---" <> rest, path, opts) do
-    yaml_options = Keyword.merge([atoms: true], Keyword.get(opts, :yaml_options, []))
-    [yaml, body] = String.split(rest, ["---\n", "---\r\n"], parts: 2)
+  if Code.ensure_loaded?(YamlElixir) do
+    def process!("---" <> rest, path, opts) do
+      yaml_options = Keyword.merge([atoms: true], Keyword.get(opts, :yaml_options, []))
+      [yaml, body] = String.split(rest, ["---\n", "---\r\n"], parts: 2)
 
-    case YamlElixir.read_from_string(yaml, yaml_options) do
-      {:ok, attrs} ->
-        {attrs, body}
+      case YamlElixir.read_from_string(yaml, yaml_options) do
+        {:ok, attrs} ->
+          {attrs, body}
 
-      {:error, msg} ->
-        raise """
+        {:error, msg} ->
+          raise """
+          Failed to process YAML frontmatter in #{inspect(path)}
+
+          #{msg}
+          """
+      end
+    end
+  else
+    def process!("---" <> _rest, path, _opts),
+      do:
+        raise(ArgumentError, """
         Failed to process YAML frontmatter in #{inspect(path)}
 
-        #{msg}
-        """
-    end
+        :yaml_elixir is not installed
+        """)
   end
 
-  def process!("+++" <> rest, path, opts) do
-    toml_options = Keyword.merge([keys: :atoms], Keyword.get(opts, :toml_options, []))
-    [toml, body] = String.split(rest, ["+++\n", "+++\r\n"], parts: 2)
+  if Code.ensure_loaded?(Toml) do
+    def process!("+++" <> rest, path, opts) do
+      toml_options = Keyword.merge([keys: :atoms], Keyword.get(opts, :toml_options, []))
+      [toml, body] = String.split(rest, ["+++\n", "+++\r\n"], parts: 2)
 
-    case Toml.decode(toml, toml_options) do
-      {:ok, attrs} ->
-        {attrs, body}
+      case Toml.decode(toml, toml_options) do
+        {:ok, attrs} ->
+          {attrs, body}
 
-      {:error, msg} ->
-        raise """
+        {:error, msg} ->
+          raise """
+          Failed to process TOML frontmatter in #{inspect(path)}
+
+          #{msg}
+          """
+      end
+    end
+  else
+    def process!("+++" <> _rest, path, _opts),
+      do:
+        raise(ArgumentError, """
         Failed to process TOML frontmatter in #{inspect(path)}
 
-        #{msg}
-        """
-    end
+        :toml is not installed
+        """)
   end
 
   def process!(content, _path, _opts) do

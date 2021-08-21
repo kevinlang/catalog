@@ -32,6 +32,23 @@ in response to a request or at boot time.
 
 ## Example
 
+We can install Catalog into our application by updating our `deps()` in our `mix.exs`
+to include `:catalog`.
+Since we will be processing markdown files here with Toml frontmatter, we will also need
+to install `:earmark` and `:toml`, respectively.
+
+```elixir
+def deps() do
+  [
+    {:catalog, "~> 0.1.1"},
+    {:earmark, "~> 1.4"},
+    {:toml, "~> 0.6.2"}
+  ]
+end
+```
+
+With that done, we can define a new module in our application:
+
 ```elixir
 defmodule MyApp.Catalog do
   use Catalog

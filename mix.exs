@@ -1,7 +1,7 @@
 defmodule Catalog.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
   @url "https://github.com/kevinlang/catalog"
 
   def project do
@@ -43,16 +43,16 @@ defmodule Catalog.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:earmark, "~> 1.4"},
-      {:makeup, "~> 1.0"},
-      {:ex_doc, "~> 0.21", only: :docs},
-      {:makeup_elixir, ">= 0.0.0"},
+      {:earmark, "~> 1.4", optional: true},
+      {:makeup, "~> 1.0", optional: true},
+      {:makeup_elixir, ">= 0.0.0", optional: true},
       {:jason, "~> 1.2", optional: true},
       {:yaml_elixir, "~> 2.8", optional: true},
       {:toml, "~> 0.6.2", optional: true},
-      {:csv, "~> 2.4.1", optional: true}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:csv, "~> 2.4", optional: true},
+
+      # docs
+      {:ex_doc, "~> 0.21", only: :docs}
     ]
   end
 end

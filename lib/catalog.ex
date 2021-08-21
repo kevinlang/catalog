@@ -28,6 +28,18 @@ defmodule Catalog do
   Processes all markdown files in `from` and stores them in the
   module attribute `as`.
 
+  To use this macro, you must install `Earmark` as a dependency in your
+  application:
+
+      {:earmark, "~> 1.14"}
+
+  Additionally, if you want to use use `Makeup` syntax highlighting via
+  the `:highlighters` option outlined below, you will need to install it
+  along with any relevant language lexers you will need:
+
+      {:makeup, "~> 1.0"},
+      {:makeup_elixir, ">= 0.0.0"}
+
   ## Example
 
       defmodule MyApp.Catalog do
@@ -56,8 +68,12 @@ defmodule Catalog do
 
   @doc """
   Processes all json files in `from` and stores them in the
-  module attribute `as`. This uses `Jason` for processing the
-  content of the file.
+  module attribute `as`.
+
+  This macro uses `Jason` to process the content of the file.
+  To use it, you must have `Jason` added as a dependency:
+
+      {:jason, "~> 1.2"}
 
   ## Example
 
@@ -105,8 +121,12 @@ defmodule Catalog do
 
   @doc """
   Processes all YAML files in `from` and stores them in the
-  module attribute `as`. Uses `YamlElixir` for processing the
-  content of the file.
+  module attribute `as`.
+
+  This macro uses `YamlElixir` for processing the content of the
+  file. To use it, you must have `YamlElixir` added as a dependency:
+
+      {:yaml_elixir, "~> 2.8"}
 
   ## Example
 
@@ -131,8 +151,12 @@ defmodule Catalog do
 
   @doc """
   Processes all TOML files in `from` and stores them in the
-  module attribute `as`. Uses `Toml` for processing the
-  content of the file.
+  module attribute `as`.
+
+  This macro uses `Toml` for processing the content of the file.
+  To use it, you must install `Toml` as a dependency:
+
+      {:toml, "~> 0.6.2"}
 
   ## Example
 
@@ -178,8 +202,12 @@ defmodule Catalog do
 
   @doc """
   Processes all CSV files in `from` and stores them in the
-  module attribute `as`. Uses `CSV` for processing the
-  content of the file.
+  module attribute `as`.
+
+  This macro uses `CSV` for processing the content of the file.
+  To use it, you must install `CSV` as a dependency:
+
+      {:csv, "~> 2.4"}
 
   ## Example
 
@@ -256,32 +284,52 @@ defmodule Catalog do
     Catalog.Highlighter.highlight(html)
   end
 
-  def __extract_json__(from, opts) do
-    jason_options = Keyword.get(opts, :jason_options, [])
-    parser = &Jason.decode!(&1, jason_options)
-    extract(parser, from, opts)
+  if Code.ensure_loaded?(Jason) do
+    def __extract_json__(from, opts) do
+      jason_options = Keyword.get(opts, :jason_options, [])
+      parser = &Jason.decode!(&1, jason_options)
+      extract(parser, from, opts)
+    end
+  else
+    def __extract_json__(_from, _opts),
+      do: raise(ArgumentError, "json/3 requires :jason to be installed and loaded")
   end
 
   def __extract_file__(from, opts) do
     extract(& &1, from, opts)
   end
 
-  def __extract_yaml__(from, opts) do
-    yaml_options = Keyword.get(opts, :yaml_options, [])
-    parser = &YamlElixir.read_from_string!(&1, yaml_options)
-    extract(parser, from, opts)
+  if Code.ensure_loaded?(YamlElixir) do
+    def __extract_yaml__(from, opts) do
+      yaml_options = Keyword.get(opts, :yaml_options, [])
+      parser = &YamlElixir.read_from_string!(&1, yaml_options)
+      extract(parser, from, opts)
+    end
+  else
+    def __extract_yaml__(_from, _opts),
+      do: raise(ArgumentError, "yaml/3 requires :yaml_elixir to be installed and loaded")
   end
 
-  def __extract_toml__(from, opts) do
-    toml_options = Keyword.get(opts, :toml_options, [])
-    parser = &Toml.decode!(&1, toml_options)
-    extract(parser, from, opts)
+  if Code.ensure_loaded?(Toml) do
+    def __extract_toml__(from, opts) do
+      toml_options = Keyword.get(opts, :toml_options, [])
+      parser = &Toml.decode!(&1, toml_options)
+      extract(parser, from, opts)
+    end
+  else
+    def __extract_toml__(_from, _opts),
+      do: raise(ArgumentError, "toml/3 requires :toml to be installed and loaded")
   end
 
-  def __extract_csv__(from, opts) do
-    csv_options = Keyword.merge([headers: true], Keyword.get(opts, :csv_otpions, []))
-    parser = &(String.split(&1) |> CSV.decode!(csv_options) |> Enum.to_list())
-    extract(parser, from, opts)
+  if Code.ensure_loaded?(CSV) do
+    def __extract_csv__(from, opts) do
+      csv_options = Keyword.merge([headers: true], Keyword.get(opts, :csv_otpions, []))
+      parser = &(String.split(&1) |> CSV.decode!(csv_options) |> Enum.to_list())
+      extract(parser, from, opts)
+    end
+  else
+    def __extract_csv__(_from, _opts),
+      do: raise(ArgumentError, "csv/3 requires :csv to be installed and loaded")
   end
 
   defp extract(decoder, from, opts) do
