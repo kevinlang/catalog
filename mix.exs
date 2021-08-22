@@ -8,7 +8,7 @@ defmodule Catalog.MixProject do
     [
       app: :catalog,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.11",
       name: "Catalog",
       description:
         "Compile time content and data processing engine for markdown, json, yaml, and more.",
